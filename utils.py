@@ -4,8 +4,6 @@ from mido import MidiFile, MidiTrack, Message
 import threading
 import uuid
 
-
-
 def play_seq(instrument, times, notes, durs, vels):
 
     output_port = get_port(instrument)
@@ -51,7 +49,12 @@ def get_port(instrument):
 def build_events(times, notes, durs, vels):
     events = []
     for i in range(0, len(times)):
-        events.append({'type': 'note_on', 'note': notes[i], 'vel': vels[i], 't': times[i]})
-        events.append({'type': 'note_off', 'note': notes[i], 'vel': vels[i], 't': float(times[i]) + float(durs[i])})
+        if isinstance(notes[i], list):
+            for note in notes[i]:
+                events.append({'type': 'note_on', 'note': note, 'vel': vels[i], 't': times[i]})
+                events.append({'type': 'note_off', 'note': note, 'vel': vels[i], 't': float(times[i]) + float(durs[i])})   
+        else:
+            events.append({'type': 'note_on', 'note': notes[i], 'vel': vels[i], 't': times[i]})
+            events.append({'type': 'note_off', 'note': notes[i], 'vel': vels[i], 't': float(times[i]) + float(durs[i])})
     events = sorted(events, key=lambda x: x["t"])
     return events
